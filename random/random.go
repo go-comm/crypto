@@ -3,6 +3,7 @@ package random
 import (
 	crand "crypto/rand"
 	"fmt"
+	"log"
 	mrand "math/rand"
 	"os"
 	"time"
@@ -20,6 +21,7 @@ func checkLength(length int) {
 
 // generate byte slice
 func GenerateCryptoBytes(length int) []byte {
+	log.Println("crypto rand bytes")
 	checkLength(length)
 	b := make([]byte, length)
 	crand.Read(b)
@@ -28,6 +30,7 @@ func GenerateCryptoBytes(length int) []byte {
 
 // generate byte slice
 func GenerateBytes(length int) []byte {
+	log.Println("math rand bytes")
 	checkLength(length)
 	b := make([]byte, length)
 	var i int
@@ -88,15 +91,23 @@ func GenerateBytes(length int) []byte {
 }
 
 var (
-	stdTable   = []byte("0123456789ABCDEF")
-	humanTable = []byte("346789ABCDEFGHIJKLMNPQRTUVWXYabcdefghijkmnpqrtuvwxy")
-	textTable  = []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+	numberTable = []byte("0123456789")
+	upperTable  = []byte("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	lowerTable  = []byte("abcdefghijklmnopqrstuvwxyz")
+	alphaTable  = []byte("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+	textTable   = []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+	stdTable    = []byte("0123456789ABCDEF")
+	humanTable  = []byte("346789ABCDEFGHIJKLMNPQRTUVWXYabcdefghijkmnpqrtuvwxy")
 )
 
 var (
-	Std   = NewRandom(stdTable)
-	Human = NewRandom(humanTable)
-	Text  = NewRandom(textTable)
+	Number = NewRandom(numberTable)
+	Upper  = NewRandom(upperTable)
+	lower  = NewRandom(lowerTable)
+	Alpha  = NewRandom(alphaTable)
+	Std    = NewRandom(stdTable)
+	Human  = NewRandom(humanTable)
+	Text   = NewRandom(textTable)
 )
 
 func NewRandom(table []byte) *Random {
