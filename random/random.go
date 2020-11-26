@@ -3,7 +3,6 @@ package random
 import (
 	crand "crypto/rand"
 	"fmt"
-	"log"
 	mrand "math/rand"
 	"os"
 	"time"
@@ -21,7 +20,6 @@ func checkLength(length int) {
 
 // generate byte slice
 func GenerateCryptoBytes(length int) []byte {
-	log.Println("crypto rand bytes")
 	checkLength(length)
 	b := make([]byte, length)
 	crand.Read(b)
@@ -30,7 +28,6 @@ func GenerateCryptoBytes(length int) []byte {
 
 // generate byte slice
 func GenerateBytes(length int) []byte {
-	log.Println("math rand bytes")
 	checkLength(length)
 	b := make([]byte, length)
 	var i int
