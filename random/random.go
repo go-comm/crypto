@@ -98,14 +98,28 @@ var (
 )
 
 var (
-	Number = NewRandom(numberTable)
-	Upper  = NewRandom(upperTable)
-	lower  = NewRandom(lowerTable)
-	Alpha  = NewRandom(alphaTable)
-	Std    = NewRandom(stdTable)
-	Human  = NewRandom(humanTable)
-	Text   = NewRandom(textTable)
+	Number      = NewRandom(numberTable)
+	Upper       = NewRandom(upperTable)
+	NumberUpper = NewRandom(MergeTable(numberTable, upperTable))
+	Lower       = NewRandom(lowerTable)
+	NumberLower = NewRandom(MergeTable(numberTable, lowerTable))
+	Alpha       = NewRandom(alphaTable)
+	Std         = NewRandom(stdTable)
+	Human       = NewRandom(humanTable)
+	Text        = NewRandom(textTable)
 )
+
+func MergeTable(a []byte, b []byte, c ...[]byte) []byte {
+	var d []byte
+	d = append(d, a...)
+	d = append(d, b...)
+	if len(c) > 0 {
+		for _, e := range c {
+			d = append(d, e...)
+		}
+	}
+	return d
+}
 
 func NewRandom(table []byte) *Random {
 	if len(table) >= 256 {
