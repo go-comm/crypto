@@ -107,6 +107,9 @@ var (
 	Std         = NewRandom(stdTable)
 	Human       = NewRandom(humanTable)
 	Text        = NewRandom(textTable)
+	R16         = NewRandom(textTable[:16])
+	R32         = NewRandom(textTable[:32])
+	R48         = NewRandom(textTable[:48])
 )
 
 func MergeTable(a []byte, b []byte, c ...[]byte) []byte {
