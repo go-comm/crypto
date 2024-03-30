@@ -3,7 +3,6 @@ package random
 import (
 	crand "crypto/rand"
 	"io"
-	"math/rand"
 	mrand "math/rand"
 )
 
@@ -28,7 +27,7 @@ type mreader struct {
 	safe    bool
 	readVal uint64
 	readPos uint8
-	r       *rand.Rand
+	r       *mrand.Rand
 }
 
 func (mr *mreader) Read(p []byte) (n int, err error) {
