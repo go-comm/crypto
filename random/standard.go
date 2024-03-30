@@ -5,9 +5,9 @@ import (
 	"math/bits"
 	mrand "math/rand"
 	"os"
-	"sync"
 	"sync/atomic"
 	"time"
+	"unsafe"
 )
 
 var _ = crand.Read
@@ -30,18 +30,8 @@ func hash(v uint64, salt uint64) uint64 {
 	return v
 }
 
-var is64 = 32<<(^uint(0)>>63) == 64
-
-func fastrand64(lk sync.Locker, n *uint64) uint64 {
-	var v uint64
-	if is64 {
-		v = atomic.AddUint64(n, 0xa0761d6478bd642f)
-	} else {
-		lk.Lock()
-		v = *n + 0xa0761d6478bd642f
-		*n = v
-		lk.Unlock()
-	}
+func fastrand64(n *uint64) uint64 {
+	v := atomic.AddUint64(n, 0xa0761d6478bd642f)
 	hi, lo := bits.Mul64(v, v^0xe7037ed1a0b428db)
 	return hi ^ lo
 }
@@ -121,16 +111,24 @@ func Read(p []byte) (n int, err error) {
 }
 
 func NewFastSource() mrand.Source {
-	return &fastSource{r: seed()}
+	src := &fastSource{}
+	src.Seed(NewSeed())
+	return src
 }
 
 type fastSource struct {
-	lk sync.Mutex
-	r  uint64
+	state [3]uint32
+}
+
+func (src *fastSource) r() *uint64 {
+	if uintptr(unsafe.Pointer(&src.state))%8 == 0 {
+		return (*uint64)(unsafe.Pointer(&src.state[0]))
+	}
+	return (*uint64)(unsafe.Pointer(&src.state[1]))
 }
 
 func (src *fastSource) Seed(seed int64) {
-	src.r = uint64(seed)
+	atomic.StoreUint64(src.r(), uint64(seed&int64(rngMask)))
 }
 
 func (src *fastSource) Int63() (n int64) {
@@ -138,7 +136,7 @@ func (src *fastSource) Int63() (n int64) {
 }
 
 func (src *fastSource) Uint64() (n uint64) {
-	return fastrand64(&src.lk, &src.r)
+	return fastrand64(src.r())
 }
 
 type Source64 interface {
