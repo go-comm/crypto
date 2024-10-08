@@ -48,7 +48,7 @@ func NewSeed() int64 {
 }
 
 func NewSeedFromString(s string) int64 {
-	return int64(hashB(1, []byte(s)) & rngMask)
+	return int64(hashB(offset, []byte(s)) & rngMask)
 }
 
 var gRand = NewFastRand()
