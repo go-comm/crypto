@@ -30,6 +30,13 @@ func hash(v uint64, salt uint64) uint64 {
 	return v
 }
 
+func hashB(v uint64, salt []byte) uint64 {
+	for i := 0; i < len(salt); i++ {
+		v = hash(v, uint64(salt[i]))
+	}
+	return v
+}
+
 func fastrand64(n *uint64) uint64 {
 	v := atomic.AddUint64(n, 0xa0761d6478bd642f)
 	hi, lo := bits.Mul64(v, v^0xe7037ed1a0b428db)
@@ -38,6 +45,10 @@ func fastrand64(n *uint64) uint64 {
 
 func NewSeed() int64 {
 	return int64(seed() & rngMask)
+}
+
+func NewSeedFromString(s string) int64 {
+	return int64(hashB(1, []byte(s)) & rngMask)
 }
 
 var gRand = NewFastRand()
