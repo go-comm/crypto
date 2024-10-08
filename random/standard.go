@@ -40,7 +40,7 @@ func NewSeed() int64 {
 	return int64(seed() & rngMask)
 }
 
-var gRand = mrand.New(NewFastSource())
+var gRand = NewFastRand()
 
 func Default() *mrand.Rand {
 	return gRand
@@ -110,9 +110,21 @@ func Read(p []byte) (n int, err error) {
 	return ReadBytes(p, gRand)
 }
 
+func NewFastRand() *mrand.Rand {
+	return mrand.New(NewFastSource())
+}
+
+func NewFastRandWithSeed(seed int64) *mrand.Rand {
+	return mrand.New(NewFastSourceWithSeed(seed))
+}
+
 func NewFastSource() mrand.Source {
+	return NewFastSourceWithSeed(NewSeed())
+}
+
+func NewFastSourceWithSeed(seed int64) mrand.Source {
 	src := &fastSource{}
-	src.Seed(NewSeed())
+	src.Seed(seed)
 	return src
 }
 
@@ -143,8 +155,6 @@ type Source64 interface {
 	mrand.Source
 	Uint64() uint64
 }
-
-var _ = mrand.Read
 
 func ReadBytesWithPos(p []byte, src Source64, readVal *uint64, readPos *uint8) (n int, err error) {
 	val := *readVal

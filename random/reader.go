@@ -13,26 +13,22 @@ func CReader() io.Reader {
 	return crand.Reader
 }
 
-var gMReader = MReaderWithRand(Default(), true)
+var gMReader = MReaderWithRand(Default())
 
 func MReader() io.Reader {
 	return gMReader
 }
 
-func MReaderWithRand(r *mrand.Rand, safe bool) io.Reader {
-	return &mreader{r: r, safe: safe}
+func MReaderWithRand(r *mrand.Rand) io.Reader {
+	return &mreader{r: r}
 }
 
 type mreader struct {
-	safe    bool
 	readVal uint64
 	readPos uint8
 	r       *mrand.Rand
 }
 
 func (mr *mreader) Read(p []byte) (n int, err error) {
-	if mr.safe {
-		return ReadBytes(p, mr.r)
-	}
 	return ReadBytesWithPos(p, mr.r, &mr.readVal, &mr.readPos)
 }
