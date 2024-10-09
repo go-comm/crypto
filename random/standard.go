@@ -8,34 +8,14 @@ import (
 	"sync/atomic"
 	"time"
 	"unsafe"
+
+	"github.com/go-comm/crypto/internal"
 )
 
 var _ = crand.Read
 var _ = mrand.New
 
-const offset uint64 = 14695981039346656037
-const prime uint64 = 1099511628211
 const rngMask uint64 = 1<<63 - 1
-
-func seed() uint64 {
-	h := offset
-	h = hash(h, uint64(time.Now().UnixNano()))
-	h = hash(h, uint64(os.Getpid()+1))
-	return h
-}
-
-func hash(v uint64, salt uint64) uint64 {
-	v *= salt
-	v ^= prime
-	return v
-}
-
-func hashB(v uint64, salt []byte) uint64 {
-	for i := 0; i < len(salt); i++ {
-		v = hash(v, uint64(salt[i]))
-	}
-	return v
-}
 
 func fastrand64(n *uint64) uint64 {
 	v := atomic.AddUint64(n, 0xa0761d6478bd642f)
@@ -44,21 +24,22 @@ func fastrand64(n *uint64) uint64 {
 }
 
 func NewSeed() int64 {
-	return int64(seed() & rngMask)
+	h := internal.Offset
+	h = internal.SumI(h, uint64(os.Getpid()))
+	h = internal.SumI(h, uint64(time.Now().UnixNano()))
+	return int64(h & rngMask)
 }
 
 func NewSeedFromString(s string) int64 {
-	return int64(hashB(offset, []byte(s)) & rngMask)
+	h := internal.Offset
+	h = internal.SumB(h, []byte(s))
+	return int64(h & rngMask)
 }
 
 var gRand = NewFastRand()
 
 func Default() *mrand.Rand {
 	return gRand
-}
-
-func Seed(seed int64) {
-	gRand.Seed(seed)
 }
 
 func Float32() float32 {
